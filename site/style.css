@@ -1,0 +1,70 @@
+/* Основні стилі для панелі навігації */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+.side-panel {
+    width: 50px;
+    background-color: #fff;
+    padding: 10px;
+    height: 100vh;
+    position: fixed; /* Змінив на fixed, щоб панель залишалась на місці */
+    left: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000; /* Додаємо високий z-index, щоб панель була поверх мапи */
+}
+
+nav.site-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Кнопки меню */
+nav.site-nav .site-nav-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+nav.site-nav .site-nav-btn:hover {
+    background-color: #e0e0e0;
+}
+
+nav.site-nav .site-nav-btn i {
+    font-size: 24px;
+    color: #333;
+}
+
+
+/* Стилі для мапи */
+#map {
+    height: 100vh;
+    width: calc(100% - 60px); /* Враховуємо ширину панелі */
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 1; /* Низький z-index, щоб карта була під панеллю */
+}
