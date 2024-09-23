@@ -1,70 +1,115 @@
-/* Основні стилі для панелі навігації */
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+}
+
+.map {
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
+.left-menu {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 999;
+}
+
+.left-menu button {
+    background-color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.left-menu button i {
+    font-size: 24px;
+}
+
+.left-menu button:hover {
     background-color: #f0f0f0;
 }
 
-.side-panel {
-    width: 50px;
-    background-color: #fff;
-    padding: 10px;
-    height: 100vh;
-    position: fixed; /* Змінив на fixed, щоб панель залишалась на місці */
-    left: 0;
-    top: 0;
-    display: flex;
-    justify-content: center;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    z-index: 1000; /* Додаємо високий z-index, щоб панель була поверх мапи */
+.left-menu button:active {
+    background-color: #ccc;
 }
 
-nav.site-nav {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+/* Стилі для панелі налаштувань */
+.menu-panel {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Виходить зліва */
+    width: 300px;
     height: 100%;
-}
-
-.nav-section {
+    background-color: #333;
+    color: white;
+    z-index: 1000;
+    transition: left 0.3s ease;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
 }
 
-/* Кнопки меню */
-nav.site-nav .site-nav-btn {
-    width: 44px;
-    height: 44px;
+.menu-header {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #444;
+}
+
+.close-btn {
+    background: none;
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-nav.site-nav .site-nav-btn:hover {
-    background-color: #e0e0e0;
-}
-
-nav.site-nav .site-nav-btn i {
+    color: white;
     font-size: 24px;
-    color: #333;
+    cursor: pointer;
 }
 
+.menu-content {
+    padding: 20px;
+}
 
-/* Стилі для мапи */
-#map {
-    height: 100vh;
-    width: calc(100% - 60px); /* Враховуємо ширину панелі */
-    position: absolute;
-    right: 0;
+.github-link {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    background-color: #222;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.github-link:hover {
+    background-color: #444;
+}
+
+/* Стилі для фону, що затемнюється */
+.backdrop {
+    position: fixed;
     top: 0;
-    z-index: 1; /* Низький z-index, щоб карта була під панеллю */
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+/* Стилі для блюру ефекту на мапі */
+.map.blur {
+    filter: blur(5px);
+}
+
+/* Панель відкривається */
+.menu-panel.open {
+    left: 0;
+}
+
+.backdrop.show {
+    display: block;
 }
