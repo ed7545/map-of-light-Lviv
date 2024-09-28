@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ua">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мапа світла</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!-- Підключаємо мапу -->
+    <link rel="stylesheet" href="https://unpkg.com/boxicons/css/boxicons.min.css"> <!-- BoxIcons -->
+    <link rel="stylesheet" href="style.css"> <!-- Стилі -->
+</head>
+<body>
+    
+    <!-- Меню зліва -->
+    <div class="left-menu">
+        <button id="menu-btn" class="menu-btn">
+            <i class="bx bx-menu"></i>
+        </button>
+        <button class="about-button">
+            <i class='bx bx-info-circle'></i>
+        </button>
+        <button id="settings-btn" class="settings-btn">
+            <i class="bx bx-cog"></i>
+        </button>
+    </div>
+
+    <!-- Випливаюча панель -->
+    <div id="menu-panel" class="menu-panel">
+        <div class="menu-header">
+            <span>Налаштування мапи</span>
+            <button id="close-btn" class="close-btn">&times;</button>
+        </div>
+        <div class="menu-content">
+            <a href="https://github.com/ed7545/map-of-light-Lviv" target="_blank" class="github-link">GitHub Project</a>
+        </div>
+    </div>
+
+    <!-- Фон для затемнення -->
+    <div id="backdrop" class="backdrop"></div>
+    <!-- Вікно "Про нас" -->
+<div class="about-us-panel hidden">
+    <div class="about-us-header">
+        <h2>Про нас</h2>
+        <button class="close-about-us">&times;</button>
+    </div>
+    <div class="about-us-content">
+        <p>Це просте віконце про наш проект. Інформація буде додана пізніше.</p>
+    </div>
+</div>
+
+    <!-- Контейнер для карти -->
+    <div id="map" class="map"></div>
+
+    <!-- Підключення основних скриптів -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script src="interface.js"></script>
+</body>
+</html>
+
