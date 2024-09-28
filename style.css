@@ -110,6 +110,61 @@ body {
     left: 0;
 }
 
+
 .backdrop.show {
     display: block;
+}
+
+/* Стиль для панелі "Про нас" */
+.about-us-panel {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1200;
+}
+
+.about-us-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.about-us-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.about-us-content {
+    margin-top: 15px;
+}
+
+.close-about-us {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+}
+/* Стиль для активної кнопки "Про нас" */
+.about-button.active, .about-button.active:hover {
+    background-color: #333;  /* Темний фон для активної кнопки */
+    color: white;            /* Білий колір іконки */
+}
+
+/* Дефолтний стиль для кнопки "Про нас" при наведенні */
+.about-button:hover {
+    background-color: #555;  /* Темніше при наведенні */
+    color: #444            /* Білий колір іконки */
+}
+
+
+.hidden {
+    display: none;
 }

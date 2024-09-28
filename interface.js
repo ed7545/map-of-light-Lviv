@@ -25,3 +25,41 @@ backdrop.addEventListener('click', () => {
     backdrop.classList.remove('show');
     mapDiv.classList.remove('blur');
 });
+
+
+// Елементи для панелі "Про нас"
+const aboutUsPanel = document.querySelector('.about-us-panel');
+const aboutUsButton = document.querySelector('.about-button');
+const closeAboutUsButton = document.querySelector('.close-about-us');
+
+// Функція для закриття панелі "Про нас"
+function closeAboutUs() {
+    aboutUsPanel.classList.add('hidden');
+    aboutUsButton.classList.remove('active');  // Забираємо активний стан кнопки
+    map.getContainer().style.filter = 'none';  // Знімаємо блюр
+}
+
+// Відкрити/закрити панель "Про нас"
+aboutUsButton.addEventListener('click', () => {
+    if (aboutUsPanel.classList.contains('hidden')) {
+        aboutUsPanel.classList.remove('hidden');
+        aboutUsButton.classList.add('active');  // Робимо кнопку активною
+        map.getContainer().style.filter = 'blur(5px)';
+    } else {
+        closeAboutUs();
+    }
+});
+
+// Закрити панель "Про нас" за допомогою хрестика
+closeAboutUsButton.addEventListener('click', closeAboutUs);
+
+// Закриття панелі "Про нас" при натисканні на інші кнопки
+menuBtn.addEventListener('click', () => {
+    closeAboutUs();  // Закриваємо "Про нас"
+    // Інші дії для меню...
+});
+
+settingsButton.addEventListener('click', () => {
+    closeAboutUs();  // Закриваємо "Про нас"
+    // Інші дії для налаштувань...
+});
