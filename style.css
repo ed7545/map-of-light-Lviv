@@ -169,62 +169,32 @@ body {
     display: none;
 }
 
-
-/* Стилі для часової шкали */
-/* Стиль для мобільної версії */
-.time-slider-mobile {
+.location-btn {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
     height: 50px;
+    border-radius: 50%;
     background-color: white;
-    border-top: 1px solid black;
+    border: 2px solid gray;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Підвищуємо пріоритет зображення */
+    cursor: pointer;
+    z-index: 1000;
   }
   
-  .time-slider-mobile input.slider {
-    width: 80%;
-    margin-right: 10px;
+  .location-btn.active {
+    background-color: blue;
   }
   
-  /* Стиль для комп'ютерної версії */
-  .time-slider-desktop {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    width: 200px;
-    height: 50px;
-    background-color: white;
-    border: 1px solid black;
-    display: none; /* Спочатку приховуємо на мобільних */
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Підвищуємо пріоритет зображення */
+  .location-btn:hover {
+    background-color: lightgray;
   }
   
-  .time-slider-desktop input.slider {
-    width: 150px;
-    margin-right: 10px;
-  }
-  
-  /* Відображення на більших екранах */
-  @media (min-width: 768px) {
-    .time-slider-mobile {
-      display: none;
-    }
-  
-    .time-slider-desktop {
-      display: flex;
-    }
-  }
-  
-  /* Сховати часову шкалу під панелю, коли панель активна */
-  .panel-open .time-slider-mobile,
-  .panel-open .time-slider-desktop {
-    z-index: -10;
+  .location-btn box-icon {
+    width: 30px;
+    height: 30px;
   }
   

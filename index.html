@@ -6,6 +6,7 @@
     <title>Мапа світла</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" /> <!-- Підключаємо мапу -->
     <link rel="stylesheet" href="https://unpkg.com/boxicons/css/boxicons.min.css"> <!-- BoxIcons -->
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script> <!-- BoxIcons -->
     <link rel="stylesheet" href="style.css"> <!-- Стилі -->
 </head>
 <body>
@@ -23,6 +24,11 @@
         </button>
     </div>
 
+    <button id="locationButton" class="location-btn" title="Показати моє місцезнаходження">
+        <box-icon name='current-location' color="black"></box-icon>
+      </button>
+      
+      
     <!-- Випливаюча панель -->
     <div id="menu-panel" class="menu-panel">
         <div class="menu-header">
@@ -47,15 +53,7 @@
     </div>
 </div>
 
-<div class="time-slider-mobile">
-    <input type="range" min="0" max="24" value="12" class="slider" id="mobileSlider">
-    <p id="mobileTime">12:00</p>
-  </div>
-  
-  <div class="time-slider-desktop">
-    <input type="range" min="0" max="24" value="12" class="slider" id="desktopSlider">
-    <p id="desktopTime">12:00</p>
-</div>
+
   
 
     <!-- Контейнер для карти -->

@@ -63,22 +63,4 @@ settingsButton.addEventListener('click', () => {
     closeAboutUs();  // Закриваємо "Про нас"
     // Інші дії для налаштувань...
 });
-// Оновлення часу для мобільної версії
-const mobileSlider = document.getElementById('mobileSlider');
-const mobileTime = document.getElementById('mobileTime');
-mobileSlider.oninput = function() {
-  mobileTime.innerHTML = this.value + ":00";
-}
-
-// Оновлення часу для комп'ютерної версії
-const desktopSlider = document.getElementById('desktopSlider');
-const desktopTime = document.getElementById('desktopTime');
-desktopSlider.oninput = function() {
-  desktopTime.innerHTML = this.value + ":00";
-}
-
-// Логіка для відкриття/закриття панелі і сховання часової шкали
-function togglePanel() {
-  document.body.classList.toggle('panel-open');
-}
 

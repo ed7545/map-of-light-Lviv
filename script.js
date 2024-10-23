@@ -48,3 +48,54 @@ fetch('data.json')
 L.control.zoom({
     position: 'topright' // Переміщення в правий верхній кут
 }).addTo(map);
+
+// Отримуємо елемент кнопки
+const locationButton = document.getElementById('locationButton');
+let locationMarker = null;
+
+// Функція для отримання місцезнаходження
+locationButton.addEventListener('click', () => {
+  if (navigator.geolocation) {
+    // Запитуємо місцезнаходження користувача
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        // Якщо вже є маркер, видаляємо його
+        if (locationMarker) {
+          map.removeLayer(locationMarker);
+        }
+
+        // Додаємо новий маркер на мапу
+        locationMarker = L.marker([userLat, userLng]).addTo(map)
+          .bindPopup('Ви тут').openPopup();
+
+        // Показуємо користувача на мапі
+        map.setView([userLat, userLng], 13);
+
+        // Активуємо синій колір кнопки
+        locationButton.classList.add('active');
+      },
+      (error) => {
+        // Обробляємо різні помилки
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Доступ до геолокації заборонено.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Інформація про місцезнаходження недоступна.");
+            break;
+          case error.TIMEOUT:
+            alert("Час очікування геолокації вичерпано.");
+            break;
+          default:
+            alert("Невідома помилка при отриманні місцезнаходження.");
+            break;
+        }
+      }
+    );
+  } else {
+    alert('Ваш браузер не підтримує геолокацію');
+  }
+});
