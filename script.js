@@ -1,7 +1,7 @@
 // Підключення мапи
 const map = L.map('map', {
-  zoomControl: false // Вимикаємо стандартне управління масштабуванням
-}).setView([49.8397, 24.0297], 13); // Встановлюємо координати для Львова
+  zoomControl: false
+}).setView([49.8397, 24.0297], 13);
 
 // Додаємо Google Maps як базовий шар
 L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}', {
@@ -11,91 +11,55 @@ L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}', {
 // Об'єкт для збереження полігонів
 let polygons = {};
 
-// Отримуємо елемент кнопки
-const locationButton = document.getElementById('locationButton');
-let locationMarker = null;
-
-// Функція для отримання місцезнаходження
-locationButton.addEventListener('click', () => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-
-        // Якщо вже є маркер, видаляємо його
-        if (locationMarker) {
-          map.removeLayer(locationMarker);
-        }
-
-        // Додаємо новий маркер на мапу
-        locationMarker = L.marker([userLat, userLng]).addTo(map)
-          .bindPopup('Ви тут').openPopup();
-
-        // Показуємо користувача на мапі
-        map.setView([userLat, userLng], 13);
-
-        // Активуємо синій колір кнопки
-        locationButton.classList.add('active');
-      },
-      () => {
-        alert('Не вдалося отримати ваше місцезнаходження');
-      }
-    );
-  } else {
-    alert('Ваш браузер не підтримує геолокацію');
-  }
-});
+// Отримуємо елемент для відображення часу
+const timeContainer = document.getElementById('current-time');
 
 // Функція для стилізації полігонів на основі даних кольорів
 function styleFunction(feature, color) {
   return {
-      fillColor: color, // задається колір
-      color: 'transparent', // Колір контуру-прозорий
-      weight: 0 // Товщина контуру
+      fillColor: color,
+      color: 'transparent',
+      weight: 0
   };
 }
 
-// Функція для завантаження кольорів для поточної години
+// Функція для отримання кольору полігону на основі поточної години
 function getCurrentHourColor(colorData, featureId, currentHour) {
-  const colors = colorData[featureId]; // Масив кольорів для певного полігону
-  return colors ? colors[currentHour] : 'transparent'; // Повертаємо колір для поточної години
+  const colors = colorData[featureId];
+  return colors ? colors[currentHour] : 'transparent';
 }
 
 // Функція для оновлення кольорів полігонів
 function updatePolygonsColors(colorData, currentHour) {
-  console.log(`Updating polygons colors for hour: ${currentHour}`);
+  console.log(`Оновлення кольорів полігонів для години: ${currentHour}`);
   Object.keys(polygons).forEach(polygonId => {
       const polygon = polygons[polygonId];
-      const currentColor = getCurrentHourColor(colorData, polygonId, currentHour); // Отримуємо колір для поточної години
-      console.log(`Polygon ${polygonId} color: ${currentColor}`);
-      polygon.setStyle({ fillColor: currentColor }); // Оновлюємо стиль полігону
+      const currentColor = getCurrentHourColor(colorData, polygonId, currentHour);
+      polygon.setStyle({ fillColor: currentColor });
   });
 }
 
-// Функція для завантаження даних кольорів через API
-function fetchPolygonColors(currentHour) {
-  fetch('https://ed007.pythonanywhere.com/api/colors')
-      .then(response => response.json())
-      .then(responseData => {
-          if (responseData.status === 'success') {
-              const colorData = responseData.data; // Отримуємо дані кольорів
-              updatePolygonsColors(colorData, currentHour); // Оновлюємо кольори полігонів
-          } else {
-              console.error('Помилка в даних API:', responseData);
-          }
-      })
-      .catch(error => console.error('Помилка завантаження API:', error));
-}
-
-// Функція для отримання реального часу в Львові
-function fetchLvivTime() {
-  fetch('https://worldtimeapi.org/api/timezone/Europe/Kiev') // API для отримання часу в Львові
+// Функція для отримання реального часу в Львові та оновлення кольорів полігонів
+function fetchLvivTimeAndUpdateColors() {
+  fetch('https://worldtimeapi.org/api/timezone/Europe/Kyiv')
       .then(response => response.json())
       .then(data => {
-          const currentHour = new Date(data.datetime).getHours(); // Отримуємо поточну годину в Львові
-          console.log(`Current hour in Lviv: ${currentHour}`);
-          fetchPolygonColors(currentHour); // Оновлюємо кольори полігонів на основі поточної години в Львові
+          const currentHour = new Date(data.datetime).getHours();
+          const currentTime = data.datetime.slice(11, 16); // Формат HH:MM
+          timeContainer.textContent = currentTime; // Відображення часу на екрані
+
+          // Запит на кольори через API та оновлення полігонів
+          fetch('https://ed007.pythonanywhere.com/api/colors')
+              .then(response => response.json())
+              .then(responseData => {
+                  if (responseData.status === 'success') {
+                      const colorData = responseData.data;
+                      updatePolygonsColors(colorData, currentHour);
+                  } else {
+                      console.error('Помилка в даних API:', responseData);
+                  }
+              })
+              .catch(error => console.error('Помилка завантаження кольорів через API:', error));
       })
       .catch(error => console.error('Помилка отримання часу:', error));
 }
@@ -104,33 +68,21 @@ function fetchLvivTime() {
 fetch('data.json')
   .then(response => response.json())
   .then(geoData => {
-      // Завантажуємо дані кольорів через API
-      fetch('https://ed007.pythonanywhere.com/api/colors')
-          .then(response => response.json())
-          .then(responseData => {
-              if (responseData.status === 'success') {
-                  const colorData = responseData.data; // Отримуємо дані кольорів
-                  // Додаємо GeoJSON полігони на карту і зберігаємо їх у об'єкті polygons
-                  L.geoJSON(geoData, {
-                      style: function (feature) {
-                          const featureId = feature.properties.id;
-                          const initialColor = getCurrentHourColor(colorData, featureId, new Date().getHours()); // Початковий колір
-                          const polygon = L.geoJSON(feature, {
-                              style: styleFunction(feature, initialColor)
-                          }).addTo(map);
-                          polygons[featureId] = polygon; // Додаємо полігон у словник
-                          return styleFunction(feature, initialColor); // Використовується стилізація для полігонів
-                      }
-                  });
-                  // Запускаємо оновлення кольорів кожні 15 секунд
-                  setInterval(() => fetchLvivTime(), 15000);
-              } else {
-                  console.error('Помилка в даних API:', responseData);
-              }
-          })
-          .catch(error => {
-              console.error('Помилка завантаження API:', error);
-          });
+      // Додаємо GeoJSON полігони на карту
+      L.geoJSON(geoData, {
+          style: function (feature) {
+              const featureId = feature.properties.id;
+              const initialColor = 'transparent'; // Початковий колір
+              const polygon = L.geoJSON(feature, {
+                  style: styleFunction(feature, initialColor)
+              }).addTo(map);
+              polygons[featureId] = polygon;
+              return styleFunction(feature, initialColor);
+          }
+      });
+      // Запускаємо оновлення часу та кольорів кожні 15 секунд
+      setInterval(fetchLvivTimeAndUpdateColors, 15000);
+      fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
   })
   .catch(error => {
       console.error('Помилка завантаження data.json:', error);
@@ -138,5 +90,5 @@ fetch('data.json')
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
-  position: 'topright' // Переміщення в правий верхній кут
+  position: 'topright'
 }).addTo(map);
