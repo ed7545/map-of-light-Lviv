@@ -91,7 +91,7 @@ fetch('data.json')
             }
         });
         // Запускаємо оновлення часу та кольорів кожні 15 секунд
-        setInterval(fetchLvivTimeAndUpdateColors, 15000);
+        setInterval(fetchLvivTimeAndUpdateColors, 1800000);
         fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
     })
     .catch(error => {
