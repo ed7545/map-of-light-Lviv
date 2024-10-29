@@ -52,6 +52,8 @@ function fetchPolygonColors(currentHour) {
     .catch(error => console.error('Помилка завантаження API:', error));
 }
 
+// Додаємо API-ключ тут
+const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 // Функція для отримання реального часу у Львові
 function fetchLvivTime() {
   fetch('https://ed007.pythonanywhere.com/api/time')
