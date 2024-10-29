@@ -98,17 +98,24 @@ fetch('data.json')
         console.error('Помилка завантаження data.json:', error);
     });
 
-    // Функція для відображення попередження на наступну годину
+// Функція для відображення попередження на наступну годину
 function highlightNextHourPolygons(colorData, nextHour) {
-  Object.keys(polygons).forEach(polygonId => {
-      const polygon = polygons[polygonId];
-      const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
-      
-      if (nextHourColor === 'red') {
-          polygon.setStyle({ fillColor: 'yellow' }); // Встановлюємо жовтий колір як попереджувальний
-      }
-  });
+    Object.keys(polygons).forEach(polygonId => {
+        const polygon = polygons[polygonId];
+        const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
+        
+        if (nextHourColor === 'red') {
+            // Якщо полігон є колекцією (наприклад, масивом), застосовуємо стиль до кожного елементу
+            if (Array.isArray(polygon)) {
+                polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
+            } else {
+                // Якщо це окремий об'єкт, застосовуємо стиль безпосередньо
+                polygon.setStyle({ fillColor: 'yellow' });
+            }
+        }
+    });
 }
+
 
 // Модифікуємо функцію fetchLvivTimeAndUpdateColors для включення попереджувальної функції
 function fetchLvivTimeAndUpdateColors() {
