@@ -11,6 +11,42 @@ L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}', {
 // Об'єкт для збереження полігонів
 let polygons = {};
 
+// Отримуємо елемент кнопки
+const locationButton = document.getElementById('locationButton');
+let locationMarker = null;
+
+// Функція для отримання місцезнаходження
+locationButton.addEventListener('click', () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        // Якщо вже є маркер, видаляємо його
+        if (locationMarker) {
+          map.removeLayer(locationMarker);
+        }
+
+        // Додаємо новий маркер на мапу
+        locationMarker = L.marker([userLat, userLng]).addTo(map)
+          .bindPopup('Ви тут').openPopup();
+
+        // Показуємо користувача на мапі
+        map.setView([userLat, userLng], 13);
+
+        // Активуємо синій колір кнопки
+        locationButton.classList.add('active');
+      },
+      () => {
+        alert('Не вдалося отримати ваше місцезнаходження');
+      }
+    );
+  } else {
+    alert('Ваш браузер не підтримує геолокацію');
+  }
+});
+
 // Функція для стилізації полігонів на основі даних кольорів
 function styleFunction(feature, color) {
   return {
