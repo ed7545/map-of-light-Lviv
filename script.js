@@ -38,55 +38,58 @@ function updatePolygonsColors(colorData, currentHour) {
       polygon.setStyle({ fillColor: currentColor });
   });
 }
+// Додаємо ваш API-ключ тут
+const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 
 // Функція для отримання реального часу в Львові та оновлення кольорів полігонів
 function fetchLvivTimeAndUpdateColors() {
-  fetch('https://worldtimeapi.org/api/timezone/Europe/Kyiv')
-      .then(response => response.json())
-      .then(data => {
-          const currentHour = new Date(data.datetime).getHours();
-          const currentTime = data.datetime.slice(11, 16); // Формат HH:MM
-          timeContainer.textContent = currentTime; // Відображення часу на екрані
+    fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
+        .then(response => response.json())
+        .then(data => {
+            const currentHour = new Date(data.date_time_txt).getHours();
+            const currentTime = data.date_time_txt.slice(11, 16); // Формат HH:MM
+            timeContainer.textContent = currentTime; // Відображення часу на екрані
 
-          // Запит на кольори через API та оновлення полігонів
-          fetch('https://ed007.pythonanywhere.com/api/colors')
-              .then(response => response.json())
-              .then(responseData => {
-                  if (responseData.status === 'success') {
-                      const colorData = responseData.data;
-                      updatePolygonsColors(colorData, currentHour);
-                  } else {
-                      console.error('Помилка в даних API:', responseData);
-                  }
-              })
-              .catch(error => console.error('Помилка завантаження кольорів через API:', error));
-      })
-      .catch(error => console.error('Помилка отримання часу:', error));
+            // Запит на кольори через API та оновлення полігонів
+            fetch('https://ed007.pythonanywhere.com/api/colors')
+                .then(response => response.json())
+                .then(responseData => {
+                    if (responseData.status === 'success') {
+                        const colorData = responseData.data;
+                        updatePolygonsColors(colorData, currentHour);
+                    } else {
+                        console.error('Помилка в даних API:', responseData);
+                    }
+                })
+                .catch(error => console.error('Помилка завантаження кольорів через API:', error));
+        })
+        .catch(error => console.error('Помилка отримання часу:', error));
 }
 
 // Завантажуємо дані полігонів з файлу data.json і додаємо на карту
 fetch('data.json')
-  .then(response => response.json())
-  .then(geoData => {
-      // Додаємо GeoJSON полігони на карту
-      L.geoJSON(geoData, {
-          style: function (feature) {
-              const featureId = feature.properties.id;
-              const initialColor = 'transparent'; // Початковий колір
-              const polygon = L.geoJSON(feature, {
-                  style: styleFunction(feature, initialColor)
-              }).addTo(map);
-              polygons[featureId] = polygon;
-              return styleFunction(feature, initialColor);
-          }
-      });
-      // Запускаємо оновлення часу та кольорів кожні 15 секунд
-      setInterval(fetchLvivTimeAndUpdateColors, 15000);
-      fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
-  })
-  .catch(error => {
-      console.error('Помилка завантаження data.json:', error);
-  });
+    .then(response => response.json())
+    .then(geoData => {
+        // Додаємо GeoJSON полігони на карту
+        L.geoJSON(geoData, {
+            style: function (feature) {
+                const featureId = feature.properties.id;
+                const initialColor = 'transparent';
+                const polygon = L.geoJSON(feature, {
+                    style: styleFunction(feature, initialColor)
+                }).addTo(map);
+                polygons[featureId] = polygon;
+                return styleFunction(feature, initialColor);
+            }
+        });
+        // Запускаємо оновлення часу та кольорів кожні 15 секунд
+        setInterval(fetchLvivTimeAndUpdateColors, 15000);
+        fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
+    })
+    .catch(error => {
+        console.error('Помилка завантаження data.json:', error);
+    });
+
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
