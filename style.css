@@ -234,20 +234,29 @@ body {
     }
 }
 
-/* Стилі для годинника */
+/* Стилі для контейнера з годинником */
 #clock-container {
     position: fixed;
     left: 20px;
     bottom: 20px;
     width: 100px;
     height: 40px;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.7); /* Темний напівпрозорий фон */
     border-radius: 10px;
-    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    text-align: center;
     z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Тінь для ефекту об'єму */
 }
+
+/* Стиль для тексту з часом */
+#current-time {
+    font-size: 18px;
+    font-weight: bold;
+    color: rgba(22, 22, 22, 0.8); /* Білий колір тексту */
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    letter-spacing: 1px; /* Розширення символів для кращої читабельності */
+}
+
