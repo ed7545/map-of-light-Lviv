@@ -1,4 +1,4 @@
-// Підключення мапи 4
+// Підключення мапи 
 const map = L.map('map', {
   zoomControl: false
 }).setView([49.8397, 24.0297], 13);
@@ -91,12 +91,58 @@ fetch('data.json')
             }
         });
         // Запускаємо оновлення часу та кольорів кожні 15 секунд
-        setInterval(fetchLvivTimeAndUpdateColors, 15000);
+        setInterval(fetchLvivTimeAndUpdateColors, 1800000);
         fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
     })
     .catch(error => {
         console.error('Помилка завантаження data.json:', error);
     });
+
+// Функція для відображення попередження на наступну годину
+function highlightNextHourPolygons(colorData, nextHour) {
+    Object.keys(polygons).forEach(polygonId => {
+        const polygon = polygons[polygonId];
+        const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
+        
+        if (nextHourColor === 'red') {
+            // Якщо полігон є колекцією (наприклад, масивом), застосовуємо стиль до кожного елементу
+            if (Array.isArray(polygon)) {
+                polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
+            } else {
+                // Якщо це окремий об'єкт, застосовуємо стиль безпосередньо
+                polygon.setStyle({ fillColor: 'yellow' });
+            }
+        }
+    });
+}
+
+
+// Модифікуємо функцію fetchLvivTimeAndUpdateColors для включення попереджувальної функції
+function fetchLvivTimeAndUpdateColors() {
+  fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
+      .then(response => response.json())
+      .then(data => {
+          const currentHour = new Date(data.date_time_txt).getHours();
+          const nextHour = (currentHour + 1) % 24; // Наступна година, використовуючи 24-годинний цикл
+          const currentTime = data.date_time_txt.slice(11, 16); // Формат HH:MM
+          timeContainer.textContent = currentTime; // Відображення часу на екрані
+
+          // Запит на кольори через API та оновлення полігонів
+          fetch('https://ed007.pythonanywhere.com/api/colors')
+              .then(response => response.json())
+              .then(responseData => {
+                  if (responseData.status === 'success') {
+                      const colorData = responseData.data;
+                      updatePolygonsColors(colorData, currentHour);
+                      highlightNextHourPolygons(colorData, nextHour); // Виклик для відображення попередження
+                  } else {
+                      console.error('Помилка в даних API:', responseData);
+                  }
+              })
+              .catch(error => console.error('Помилка завантаження кольорів через API:', error));
+      })
+      .catch(error => console.error('Помилка отримання часу:', error));
+}
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
