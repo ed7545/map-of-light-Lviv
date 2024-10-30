@@ -13,14 +13,12 @@
     
     <!-- Меню зліва -->
     <div class="left-menu">
-        <button id="menu-btn" class="menu-btn">
-            <i class="bx bx-menu"></i>
-        </button>
+       
         <button class="about-button">
             <i class='bx bx-info-circle'></i>
-        </button>
-        <button id="settings-btn" class="settings-btn">
-            <i class="bx bx-cog"></i>
+        </button> 
+        <button id="menu-btn" class="menu-btn">
+            <box-icon name='bookmark-heart' ></box-icon>
         </button>
     </div>
 
@@ -32,7 +30,7 @@
     <!-- Випливаюча панель -->
     <div id="menu-panel" class="menu-panel">
         <div class="menu-header">
-            <span>Налаштування мапи</span>
+            <span>Збережені адреси</span>
             <button id="close-btn" class="close-btn">&times;</button>
         </div>
         <div class="menu-content">
@@ -45,17 +43,26 @@
     <!-- Вікно "Про нас" -->
 <div class="about-us-panel hidden">
     <div class="about-us-header">
-        <h2>Про нас</h2>
+        <h2>Про сайт</h2>
         <button class="close-about-us">&times;</button>
     </div>
     <div class="about-us-content">
-        <p>Це просте віконце про наш проект. Інформація буде додана пізніше.</p>
+        <p>Це проект з дисципліни "Командна робота". Створили проект цей проект, студенти групи КБ-210:
+            <ul>
+                <p style="margin-left: -20px;">Команда Unicorp</p>
+                <li>Янкевич Влад - Product/scrum</li>
+                <li>Пінчук Едуард - Programmer 1</li>
+                <li>Войнагій Ілля - Programmer 2</li>
+                <li>Луцко Андрій - Designer</li>
+                <li>Бабашков Костя - QA</li>
+            </ul>
+        </p>
     </div>
 </div>
 
 <!-- Час -->
 <div id="clock-container">
-    <div id="current-time"></div>
+    <div id="current-time">00:00</div> <!-- Початковий текст до завантаження -->
 </div>
 
 
