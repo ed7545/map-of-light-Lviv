@@ -117,32 +117,56 @@ function highlightNextHourPolygons(colorData, nextHour) {
 }
 
 
-// Модифікуємо функцію fetchLvivTimeAndUpdateColors для включення попереджувальної функції
-function fetchLvivTimeAndUpdateColors() {
-  fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
-      .then(response => response.json())
-      .then(data => {
-          const currentHour = new Date(data.date_time_txt).getHours();
-          const nextHour = (currentHour + 1) % 24; // Наступна година, використовуючи 24-годинний цикл
-          const currentTime = data.date_time_txt.slice(11, 16); // Формат HH:MM
-          timeContainer.textContent = currentTime; // Відображення часу на екрані
+// Змінні для збереження отриманого часу
+let currentHour = 0;
+let currentMinute = 0;
 
-          // Запит на кольори через API та оновлення полігонів
-          fetch('https://ed007.pythonanywhere.com/api/colors')
-              .then(response => response.json())
-              .then(responseData => {
-                  if (responseData.status === 'success') {
-                      const colorData = responseData.data;
-                      updatePolygonsColors(colorData, currentHour);
-                      highlightNextHourPolygons(colorData, nextHour); // Виклик для відображення попередження
-                  } else {
-                      console.error('Помилка в даних API:', responseData);
-                  }
-              })
-              .catch(error => console.error('Помилка завантаження кольорів через API:', error));
-      })
-      .catch(error => console.error('Помилка отримання часу:', error));
+// Функція для форматування часу у вигляді "HH:MM"
+function formatTime(hour, minute) {
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
 }
+
+// Функція для оновлення години і хвилин на екрані
+function updateClockDisplay() {
+    currentMinute++;
+    if (currentMinute >= 60) {
+        currentMinute = 0;
+        currentHour = (currentHour + 1) % 24; // Перехід на наступну годину
+    }
+    document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
+}
+
+// Оновлюємо функцію fetchLvivTimeAndUpdateColors для збереження початкового часу
+function fetchLvivTimeAndUpdateColors() {
+    fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
+        .then(response => response.json())
+        .then(data => {
+            // Зберігаємо початкові години і хвилини з API
+            currentHour = new Date(data.date_time_txt).getHours();
+            currentMinute = new Date(data.date_time_txt).getMinutes();
+            document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
+
+            // Запит кольорів через API
+            fetch('https://ed007.pythonanywhere.com/api/colors')
+                .then(response => response.json())
+                .then(responseData => {
+                    if (responseData.status === 'success') {
+                        const colorData = responseData.data;
+                        updatePolygonsColors(colorData, currentHour);
+                        highlightNextHourPolygons(colorData, currentHour);
+                    } else {
+                        console.error('Помилка в даних API:', responseData);
+                    }
+                })
+                .catch(error => console.error('Помилка завантаження кольорів через API:', error));
+        })
+        .catch(error => console.error('Помилка отримання часу:', error));
+}
+
+// Початковий запит та інтервал для оновлення хвилин локально
+fetchLvivTimeAndUpdateColors();
+setInterval(updateClockDisplay, 60000); // Оновлення хвилин щохвилини
+
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
