@@ -260,3 +260,33 @@ body {
     letter-spacing: 1px; /* Розширення символів для кращої читабельності */
 }
 
+
+
+#search-container {
+    position: fixed;
+    top: 20px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 5px 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+#addressInput {
+    border: none;
+    outline: none;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 15px;
+}
+
+#searchButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}

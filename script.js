@@ -167,6 +167,54 @@ function fetchLvivTimeAndUpdateColors() {
 fetchLvivTimeAndUpdateColors();
 setInterval(updateClockDisplay, 60000); // Оновлення хвилин щохвилини
 
+// Функція для пошуку адреси
+async function searchAddress(address) {
+    // URL запиту до Nominatim API з обмеженням до Львова
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.length > 0) {
+            const { lat, lon } = data[0];
+            // Встановлення червоного маркера на знайдених координатах
+            L.marker([lat, lon], { color: 'red' }).addTo(map)
+                .bindPopup(`Знайдено адресу ${address}`)
+                .openPopup();
+            map.setView([lat, lon], 15); // Збільшуємо масштаб до координат
+        } else {
+            alert("Адресу не знайдено.");
+        }
+    } catch (error) {
+        console.error("Помилка при пошуку адреси:", error);
+    }
+}
+
+// Обробка події натискання кнопки пошуку
+document.getElementById('searchButton').addEventListener('click', () => {
+    const addressInput = document.getElementById('addressInput').value;
+    if (addressInput) {
+        searchAddress(addressInput);
+    } else {
+        alert("Введіть адресу для пошуку.");
+    }
+});
+
+// Обробка події натискання клавіші Enter у полі введення адреси
+document.getElementById('addressInput').addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+        const addressInput = document.getElementById('addressInput').value;
+        if (addressInput) {
+            searchAddress(addressInput);
+        } else {
+            alert("Введіть адресу для пошуку.");
+        }
+    }
+});
+
+
+
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
