@@ -88,12 +88,33 @@ body {
 }
 
 .address-item {
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f5f5f5;
     border-radius: 4px;
+}
+
+
+.address-text {
+    flex-grow: 1;
     cursor: pointer;
+}
+
+.delete-btn {
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #cc0000;
 }
 
 .address-item:hover {
@@ -117,6 +138,34 @@ body {
     background-color: #218838;
 }
 
+.input-container {
+    padding: 20px;
+    gap: 10px;
+}
+
+#newAddressInput {
+    flex-grow: 1;
+    padding: 8px;
+    font-size: 18px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 220px; /* Add this line to set the width of the input field */
+}
+
+/* Стилі для кнопки видалення адреси */
+.delete-btn {
+    margin-left: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+.delete-btn:hover {
+    background-color: darkred;
+}
 
 
 /* Наче також Стилі для панелі "Про нас" */

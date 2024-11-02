@@ -40,7 +40,7 @@ function updatePolygonsColors(colorData, currentHour) {
   });
 }
 
-// Додаємо ваш API-ключ тут
+// API-ключ тут
 const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 
 // Функція для отримання реального часу в Львові та оновлення кольорів полігонів
@@ -213,6 +213,57 @@ document.getElementById('addressInput').addEventListener('keypress', (event) => 
     }
 });
 
+// Отримуємо елемент кнопки
+const locationButton = document.getElementById('locationButton');
+let locationMarker = null;
+
+// Функція для отримання місцезнаходження
+locationButton.addEventListener('click', () => {
+  if (navigator.geolocation) {
+    // Запитуємо місцезнаходження користувача
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+
+        // Якщо вже є маркер, видаляємо його
+        if (locationMarker) {
+          map.removeLayer(locationMarker);
+        }
+
+        // Додаємо новий маркер на мапу
+        locationMarker = L.marker([userLat, userLng]).addTo(map)
+          .bindPopup('Ви тут').openPopup();
+
+        // Показуємо користувача на мапі
+        map.setView([userLat, userLng], 13);
+
+        // Активуємо синій колір кнопки
+        locationButton.classList.add('active');
+      },
+      (error) => {
+        // Обробляємо різні помилки
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            alert("Доступ до геолокації заборонено.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("Інформація про місцезнаходження недоступна.");
+            break;
+          case error.TIMEOUT:
+            alert("Час очікування геолокації вичерпано.");
+            break;
+          default:
+            alert("Невідома помилка при отриманні місцезнаходження.");
+            break;
+        }
+      }
+    );
+  } else {
+    alert('Ваш браузер не підтримує геолокацію');
+  }
+});
+
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
@@ -220,3 +271,117 @@ L.control.zoom({
 }).addTo(map);
 
 
+// Функція для перевірки, чи є адреса у Львові та збереження в cookies
+async function validateAndSaveAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.length > 0) {
+            const { lat, lon, display_name } = data[0];
+            // Виділяємо скорочений варіант адреси (перша частина до коми)
+            const shortAddress = display_name.split(',')[0];
+            addAddressToList(shortAddress, { lat, lon });
+            saveAddressToCookie(shortAddress, { lat, lon });
+        } else {
+            alert("Адресу не знайдено у Львові.");
+        }
+    } catch (error) {
+        console.error("Помилка при перевірці адреси:", error);
+    }
+}
+
+
+// Функція для додавання адреси в список на панелі
+function addAddressToList(address, coordinates) {
+    // Перевіряємо, чи вже є три адреси
+    const addressItems = document.querySelectorAll('.address-item');
+    if (addressItems.length >= 3) {
+        alert("Ви можете зберегти лише 3 адреси.");
+        return;
+    }
+
+    // Створюємо новий елемент для адреси
+    const addressItem = document.createElement('div');
+    addressItem.classList.add('address-item');
+    addressItem.textContent = address;
+
+    // Створюємо кнопку для видалення адреси
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '×';
+    deleteButton.classList.add('delete-btn');
+    deleteButton.style.marginLeft = '10px';
+    deleteButton.style.backgroundColor = 'red';
+    deleteButton.style.color = 'white';
+    deleteButton.style.border = 'none';
+    deleteButton.style.cursor = 'pointer';
+    
+    // Додаємо подію для видалення адреси при натисканні
+    deleteButton.addEventListener('click', () => {
+        addressItem.remove();
+        deleteAddressFromCookie(address); // Видаляємо адресу з cookie
+    });
+
+    // Додаємо кнопку видалення до елементу адреси
+    addressItem.appendChild(deleteButton);
+
+    // Додаємо елемент адреси до списку
+    document.getElementById('address-list').appendChild(addressItem);
+}
+
+// Обробка натискання на кнопку "Додати адресу"
+document.getElementById('add-address-btn').addEventListener('click', () => {
+    const newAddress = document.getElementById('newAddressInput').value;
+    if (newAddress) {
+        validateAndSaveAddress(newAddress);
+    } else {
+        alert("Введіть адресу для збереження.");
+    }
+});
+
+// Функція для збереження адреси в cookies (до 3 адрес)
+function saveAddressToCookie(displayName, coordinates) {
+    let savedAddresses = getCookie('userAddresses');
+    savedAddresses = savedAddresses ? JSON.parse(savedAddresses) : [];
+
+    // Перевіряємо, чи вже збережено 3 адреси
+    if (savedAddresses.length >= 3) {
+        savedAddresses.shift(); // Видаляємо найстарішу адресу
+    }
+
+    // Додаємо нову адресу
+    savedAddresses.push({ displayName, coordinates });
+    setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
+}
+
+
+// Функція для видалення адреси з cookies
+function deleteAddressFromCookie(address) {
+    const userData = getUserData();
+    if (userData) {
+        // Фільтруємо збережені адреси, щоб виключити видалену адресу
+        userData.names = userData.names.filter(name => name !== address);
+        userData.coordinates = userData.coordinates.filter(coord => coord.address !== address);
+
+        // Зберігаємо оновлені дані
+        setCookie('userData', JSON.stringify(userData), 30);
+    }
+}
+
+
+// Відображення адрес з cookies при завантаженні сторінки
+function loadSavedAddresses() {
+    const userData = getUserData(); // Отримуємо дані користувача з cookies
+    if (userData && userData.names && userData.coordinates) {
+        // Ітеруємося по кожній адресі та її координатах
+        userData.names.forEach((name, index) => {
+            const coordinates = userData.coordinates[index];
+            addAddressToList(name, coordinates); // Додаємо адресу до списку
+        });
+    }
+}
+
+// Завантажуємо адреси з cookies при старті
+loadSavedAddresses();
