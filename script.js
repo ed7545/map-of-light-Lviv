@@ -341,16 +341,17 @@ document.getElementById('add-address-btn').addEventListener('click', () => {
     }
 });
 
-// Функція для отримання значення cookie
 function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i = 0; i < ca.length; i++) {
-        let c = ca[i].trim();
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    let nameEQ = name + "=";
+    let ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
 }
+
 
 // Функція для збереження адреси в cookies (до 3 адрес)
 function saveAddressToCookie(displayName, coordinates) {
@@ -366,6 +367,8 @@ function saveAddressToCookie(displayName, coordinates) {
     savedAddresses.push({ displayName, coordinates });
     setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
 }
+
+
 
 
 // Функція для отримання даних користувача з cookies
@@ -388,6 +391,30 @@ function deleteAddressFromCookie(address) {
     }
 }
 
+// Функція для збереження адреси в cookies (до 3 адрес)
+function saveAddressToCookie(displayName, coordinates) {
+    let savedAddresses = getCookie('userAddresses');
+    savedAddresses = savedAddresses ? JSON.parse(savedAddresses) : [];
+
+    // Перевіряємо, чи вже збережено 3 адреси
+    if (savedAddresses.length >= 3) {
+        savedAddresses.shift(); // Видаляємо найстарішу адресу
+    }
+
+    // Додаємо нову адресу
+    savedAddresses.push({ displayName, coordinates });
+    setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
+}
+
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
 
 // Завантаження адрес з cookies при завантаженні сторінки
 function loadSavedAddresses() {
@@ -403,12 +430,15 @@ function loadSavedAddresses() {
 // Завантажуємо адреси при старті
 loadSavedAddresses();
 
-// Приклад MutationObserver замість застарілого MutationEvent
-const observer = new MutationObserver((mutationsList, observer) => {
-    for (const mutation of mutationsList) {
+const observer = new MutationObserver((mutationsList) => {
+    for (let mutation of mutationsList) {
         if (mutation.type === 'childList') {
-            console.log('Зміни в DOM:', mutation);
+            console.log('Зміни в DOM: ', mutation);
         }
     }
 });
+
 observer.observe(document.body, { childList: true, subtree: true });
+
+setCookie("testCookie", "testValue", 1);
+console.log(getCookie("testCookie"));

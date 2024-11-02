@@ -4,7 +4,7 @@ const menuPanel = document.getElementById('menu-panel');
 const closeBtn = document.getElementById('close-btn');
 const backdrop = document.getElementById('backdrop');
 const mapDiv = document.getElementById('map');
-
+const settingsButton = document.getElementById('settingsButton');
 // Відкрити меню
 menuBtn.addEventListener('click', () => {
     menuPanel.classList.add('open');
@@ -64,7 +64,7 @@ settingsButton.addEventListener('click', () => {
     // Інші дії для налаштувань...
 });
 
-const settingsButton = document.getElementById('settingsButton');
+
 if (settingsButton) {
     settingsButton.addEventListener('click', function () {
         // Дії для кнопки налаштувань
