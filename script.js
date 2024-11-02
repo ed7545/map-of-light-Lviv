@@ -294,14 +294,18 @@ async function validateAndSaveAddress(address) {
 }
 
 
-// Функція для додавання адреси в список на панелі
-function addAddressToList(address, coordinates) {
-    // Перевіряємо, чи вже є три адреси
-    const addressItems = document.querySelectorAll('.address-item');
-    if (addressItems.length >= 3) {
-        alert("Ви можете зберегти лише 3 адреси.");
-        return;
-    }
+// Функція для додавання адреси до списку на сторінці
+function addAddressToList(displayName, coordinates) {
+    const addressList = document.getElementById("address-list");
+
+    // Створюємо елемент для відображення адреси
+    const addressItem = document.createElement("div");
+    addressItem.className = "address-item";
+    addressItem.innerText = displayName;
+
+    // Додаємо елемент до списку
+    addressList.appendChild(addressItem);
+}
 
     // Створюємо новий елемент для адреси
     const addressItem = document.createElement('div');
@@ -341,17 +345,32 @@ document.getElementById('add-address-btn').addEventListener('click', () => {
     }
 });
 
+// Функція для отримання cookie за його назвою
 function getCookie(name) {
-    let nameEQ = name + "=";
-    let ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
 }
 
+// Функція для ініціалізації списку адрес із cookie при завантаженні сторінки
+function initializeAddressList() {
+    // Зчитуємо cookie з адресами
+    const addressCookie = getCookie('addressList');
+    if (addressCookie) {
+        try {
+            // Парсимо JSON, що зберігає масив адрес
+            const addresses = JSON.parse(addressCookie);
+
+            // Додаємо кожну адресу до списку на сторінці
+            addresses.forEach(address => {
+                addAddressToList(address.displayName, address.coordinates);
+            });
+        } catch (error) {
+            console.error("Помилка при парсингу cookie з адресами: ", error);
+        }
+    }
+}
 
 // Функція для збереження адреси в cookies (до 3 адрес)
 function saveAddressToCookie(displayName, coordinates) {
@@ -439,6 +458,8 @@ const observer = new MutationObserver((mutationsList) => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
+// Викликаємо функцію для ініціалізації при завантаженні сторінки
+document.addEventListener("DOMContentLoaded", initializeAddressList);
 
 setCookie("testCookie", "testValue", 1);
 console.log(getCookie("testCookie"));
