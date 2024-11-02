@@ -63,4 +63,3 @@ settingsButton.addEventListener('click', () => {
     closeAboutUs();  // Закриваємо "Про нас"
     // Інші дії для налаштувань...
 });
-

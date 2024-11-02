@@ -44,24 +44,36 @@ body {
 .menu-panel {
     position: fixed;
     top: 0;
-    left: -300px; /* Виходить зліва */
+    left: -300px; /* Початково поза екраном */
     width: 300px;
     height: 100%;
-    background-color: #333;
-    color: white;
+    background-color: white;
+    color: black;
     z-index: 1000;
     transition: left 0.3s ease;
     display: flex;
     flex-direction: column;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Тінь для панелі */
+    overflow-y: auto;
 }
 
+/* Активний стан панелі */
+.menu-panel.open {
+    left: 0; /* Показує панель */
+}
+/* Заголовок панелі */
 .menu-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 20px;
     background-color: #444;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
 }
 
+/* Кнопка закриття панелі */
 .close-btn {
     background: none;
     border: none;
@@ -69,25 +81,43 @@ body {
     font-size: 24px;
     cursor: pointer;
 }
-
-.menu-content {
+/* Список збережених адрес */
+#address-list {
+    flex-grow: 1;
     padding: 20px;
+    font-size: 16px;
+    color: #333;
 }
 
-.github-link {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    background-color: #222;
+/* Стиль для кожної адреси */
+.address-item {
     padding: 10px;
-    border-radius: 5px;
-    display: inline-block;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
 }
 
-.github-link:hover {
-    background-color: #444;
+/* Кнопка додавання адреси */
+.add-address-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
+.add-address-btn:hover {
+    background-color: #218838;
+}
+
+
+/* Наче також Стилі для панелі "Про нас" */
 /* Стилі для фону, що затемнюється */
 .backdrop {
     position: fixed;
@@ -111,9 +141,6 @@ body {
 }
 
 
-.backdrop.show {
-    display: block;
-}
 
 /* Стиль для панелі "Про нас" */
 .about-us-panel {
@@ -260,3 +287,33 @@ body {
     letter-spacing: 1px; /* Розширення символів для кращої читабельності */
 }
 
+
+
+#search-container {
+    position: fixed;
+    top: 20px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 20px;
+    padding: 5px 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+#addressInput {
+    border: none;
+    outline: none;
+    padding: 5px;
+    font-size: 14px;
+    border-radius: 15px;
+}
+
+#searchButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
