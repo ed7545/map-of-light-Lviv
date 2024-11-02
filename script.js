@@ -40,7 +40,7 @@ function updatePolygonsColors(colorData, currentHour) {
   });
 }
 
-// Додаємо ваш API-ключ тут
+// API-ключ тут
 const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 
 // Функція для отримання реального часу в Львові та оновлення кольорів полігонів
@@ -180,7 +180,7 @@ async function searchAddress(address) {
             const { lat, lon } = data[0];
             // Встановлення червоного маркера на знайдених координатах
             L.marker([lat, lon], { color: 'red' }).addTo(map)
-                .bindPopup(`Знайдено адресу ${address}`)
+                .bindPopup(`Знайдено адресу: ${address}`)
                 .openPopup();
             map.setView([lat, lon], 15); // Збільшуємо масштаб до координат
         } else {
@@ -213,10 +213,123 @@ document.getElementById('addressInput').addEventListener('keypress', (event) => 
     }
 });
 
+// Отримуємо елемент кнопки
+const locationButton = document.getElementById('locationButton');
+let locationMarker = null;
 
+// Функція для отримання місцезнаходження
+locationButton.addEventListener('click', () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        // Якщо вже є маркер, видаляємо його
+        if (locationMarker) {
+          map.removeLayer(locationMarker);
+        }
+        // Додаємо новий маркер на мапу
+        locationMarker = L.marker([userLat, userLng]).addTo(map)
+          .bindPopup('Ви тут').openPopup();
+        // Показуємо користувача на мапі
+        map.setView([userLat, userLng], 13);
+        // Активуємо синій колір кнопки
+        locationButton.classList.add('active');
+      },
+      () => {
+        alert('Не вдалося отримати ваше місцезнаходження');
+      }
+    );
+  } else {
+    alert('Ваш браузер не підтримує геолокацію');
+  }
+});
 
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
   position: 'topright'
 }).addTo(map);
+
+
+// Функція для перевірки, чи є адреса у Львові та збереження в cookies
+async function validateAndSaveAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.length > 0) {
+            const { lat, lon, display_name } = data[0];
+            // Виділяємо скорочений варіант адреси (перша частина до коми)
+            const shortAddress = display_name.split(',')[0];
+            addAddressToList(shortAddress, { lat, lon });
+            saveAddressToCookie(shortAddress, { lat, lon });
+        } else {
+            alert("Адресу не знайдено у Львові.");
+        }
+    } catch (error) {
+        console.error("Помилка при перевірці адреси:", error);
+    }
+}
+
+
+// Функція для додавання адреси в список на панелі
+function addAddressToList(displayName, coordinates) {
+    const addressList = document.getElementById('address-list');
+    const addressItem = document.createElement('div');
+    addressItem.className = 'address-item';
+    addressItem.textContent = displayName;
+    addressItem.dataset.lat = coordinates.lat;
+    addressItem.dataset.lon = coordinates.lon;
+
+    // Додаємо подію для відображення маркера при натисканні на адресу
+    addressItem.addEventListener('click', () => {
+        L.marker([coordinates.lat, coordinates.lon], { color: 'red' }).addTo(map)
+            .bindPopup(`Збережена адреса: ${displayName}`)
+            .openPopup();
+        map.setView([coordinates.lat, coordinates.lon], 15);
+    });
+
+    // Додаємо нову адресу до списку
+    addressList.appendChild(addressItem);
+}
+
+// Функція для збереження адреси в cookies (до 3 адрес)
+function saveAddressToCookie(displayName, coordinates) {
+    let savedAddresses = getCookie('userAddresses');
+    savedAddresses = savedAddresses ? JSON.parse(savedAddresses) : [];
+
+    // Перевіряємо, чи вже збережено 3 адреси
+    if (savedAddresses.length >= 3) {
+        savedAddresses.shift(); // Видаляємо найстарішу адресу
+    }
+
+    // Додаємо нову адресу
+    savedAddresses.push({ displayName, coordinates });
+    setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
+}
+
+// Відображення адрес з cookies при завантаженні сторінки
+function loadSavedAddresses() {
+    const savedAddresses = getCookie('userAddresses');
+    if (savedAddresses) {
+        JSON.parse(savedAddresses).forEach(address => {
+            addAddressToList(address.displayName, address.coordinates);
+        });
+    }
+}
+
+// Обробка натискання на кнопку "Додати адресу"
+document.getElementById('add-address-btn').addEventListener('click', () => {
+    const newAddress = document.getElementById('newAddressInput').value;
+    if (newAddress) {
+        validateAndSaveAddress(newAddress);
+    } else {
+        alert("Введіть адресу для збереження.");
+    }
+});
+
+// Завантажуємо адреси з cookies при старті
+loadSavedAddresses();
