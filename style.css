@@ -40,7 +40,6 @@ body {
     background-color: #ccc;
 }
 
-/* Стилі для панелі налаштувань */
 .menu-panel {
     position: fixed;
     top: 0;
@@ -57,11 +56,10 @@ body {
     overflow-y: auto;
 }
 
-/* Активний стан панелі */
 .menu-panel.open {
     left: 0; /* Показує панель */
 }
-/* Заголовок панелі */
+
 .menu-header {
     display: flex;
     justify-content: space-between;
@@ -73,7 +71,6 @@ body {
     font-weight: bold;
 }
 
-/* Кнопка закриття панелі */
 .close-btn {
     background: none;
     border: none;
@@ -81,7 +78,7 @@ body {
     font-size: 24px;
     cursor: pointer;
 }
-/* Список збережених адрес */
+
 #address-list {
     flex-grow: 1;
     padding: 20px;
@@ -89,16 +86,19 @@ body {
     color: #333;
 }
 
-/* Стиль для кожної адреси */
 .address-item {
     padding: 10px;
     margin-bottom: 10px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
+    cursor: pointer;
 }
 
-/* Кнопка додавання адреси */
+.address-item:hover {
+    background-color: #e0e0e0;
+}
+
 .add-address-btn {
     background-color: #28a745;
     color: white;
@@ -115,6 +115,7 @@ body {
 .add-address-btn:hover {
     background-color: #218838;
 }
+
 
 
 /* Наче також Стилі для панелі "Про нас" */
