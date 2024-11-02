@@ -64,3 +64,11 @@ settingsButton.addEventListener('click', () => {
     // Інші дії для налаштувань...
 });
 
+const settingsButton = document.getElementById('settingsButton');
+if (settingsButton) {
+    settingsButton.addEventListener('click', function () {
+        // Дії для кнопки налаштувань
+    });
+} else {
+    console.error('Кнопка налаштувань settingsButton не знайдена');
+}

@@ -341,6 +341,17 @@ document.getElementById('add-address-btn').addEventListener('click', () => {
     }
 });
 
+// Функція для отримання значення cookie
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length));
+    }
+    return null;
+}
+
 // Функція для збереження адреси в cookies (до 3 адрес)
 function saveAddressToCookie(displayName, coordinates) {
     let savedAddresses = getCookie('userAddresses');
@@ -354,6 +365,13 @@ function saveAddressToCookie(displayName, coordinates) {
     // Додаємо нову адресу
     savedAddresses.push({ displayName, coordinates });
     setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
+}
+
+
+// Функція для отримання даних користувача з cookies
+function getUserData() {
+    const data = getCookie('userData');
+    return data ? JSON.parse(data) : null;
 }
 
 
@@ -371,17 +389,26 @@ function deleteAddressFromCookie(address) {
 }
 
 
-// Відображення адрес з cookies при завантаженні сторінки
+// Завантаження адрес з cookies при завантаженні сторінки
 function loadSavedAddresses() {
-    const userData = getUserData(); // Отримуємо дані користувача з cookies
+    const userData = getUserData();
     if (userData && userData.names && userData.coordinates) {
-        // Ітеруємося по кожній адресі та її координатах
         userData.names.forEach((name, index) => {
             const coordinates = userData.coordinates[index];
-            addAddressToList(name, coordinates); // Додаємо адресу до списку
+            addAddressToList(name, coordinates);
         });
     }
 }
 
-// Завантажуємо адреси з cookies при старті
+// Завантажуємо адреси при старті
 loadSavedAddresses();
+
+// Приклад MutationObserver замість застарілого MutationEvent
+const observer = new MutationObserver((mutationsList, observer) => {
+    for (const mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            console.log('Зміни в DOM:', mutation);
+        }
+    }
+});
+observer.observe(document.body, { childList: true, subtree: true });
