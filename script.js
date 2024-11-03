@@ -1,11 +1,11 @@
-// Підключення мапи 
+// Підключення мапи
 const map = L.map('map', {
-  zoomControl: false
+    zoomControl: false
 }).setView([49.8397, 24.0297], 13);
 
 // Додаємо Google Maps як базовий шар
 L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=uk&x={x}&y={y}&z={z}', {
-  attribution: 'Google'
+    attribution: 'Google'
 }).addTo(map);
 
 // Об'єкт для збереження полігонів
@@ -15,29 +15,29 @@ let polygons = {};
 const timeContainer = document.getElementById('current-time');
 
 // Функція для стилізації полігонів на основі даних кольорів
-function styleFunction(feature, color) {
-  return {
-      fillColor: color,
-      color: 'transparent',
-      weight: 0
-  };
+function styleFunction(_feature, color) {
+    return {
+        fillColor: color,
+        color: 'transparent',
+        weight: 0
+    };
 }
 
 // Функція для отримання кольору полігону на основі поточної години
 function getCurrentHourColor(colorData, featureId, currentHour) {
-  const colors = colorData[featureId];
-  return colors ? colors[currentHour] : 'transparent';
+    const colors = colorData[featureId];
+    return colors ? colors[currentHour] : 'transparent';
 }
 
 // Функція для оновлення кольорів полігонів
 function updatePolygonsColors(colorData, currentHour) {
-  console.log(`Оновлення кольорів полігонів для години: ${currentHour}`);
-  Object.keys(polygons).forEach(polygonId => {
-      const currentColor = getCurrentHourColor(colorData, polygonId, currentHour);
-      polygons[polygonId].forEach(polygon => {
-          polygon.setStyle({ fillColor: currentColor });
-      });
-  });
+    console.log(`Оновлення кольорів полігонів для години: ${currentHour}`);
+    Object.keys(polygons).forEach(polygonId => {
+        const currentColor = getCurrentHourColor(colorData, polygonId, currentHour);
+        polygons[polygonId].forEach(polygon => {
+            polygon.setStyle({ fillColor: currentColor });
+        });
+    });
 }
 
 // API-ключ тут
@@ -103,7 +103,7 @@ function highlightNextHourPolygons(colorData, nextHour) {
     Object.keys(polygons).forEach(polygonId => {
         const polygon = polygons[polygonId];
         const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
-        
+
         if (nextHourColor === 'red') {
             // Якщо полігон є колекцією (наприклад, масивом), застосовуємо стиль до кожного елементу
             if (Array.isArray(polygon)) {
@@ -115,7 +115,6 @@ function highlightNextHourPolygons(colorData, nextHour) {
         }
     });
 }
-
 
 // Змінні для збереження отриманого часу
 let currentHour = 0;
@@ -219,57 +218,55 @@ let locationMarker = null;
 
 // Функція для отримання місцезнаходження
 locationButton.addEventListener('click', () => {
-  if (navigator.geolocation) {
-    // Запитуємо місцезнаходження користувача
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
+    if (navigator.geolocation) {
+        // Запитуємо місцезнаходження користувача
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
 
-        // Якщо вже є маркер, видаляємо його
-        if (locationMarker) {
-          map.removeLayer(locationMarker);
-        }
+                // Якщо вже є маркер, видаляємо його
+                if (locationMarker) {
+                    map.removeLayer(locationMarker);
+                }
 
-        // Додаємо новий маркер на мапу
-        locationMarker = L.marker([userLat, userLng]).addTo(map)
-          .bindPopup('Ви тут').openPopup();
+                // Додаємо новий маркер на мапу
+                locationMarker = L.marker([userLat, userLng]).addTo(map)
+                    .bindPopup('Ви тут').openPopup();
 
-        // Показуємо користувача на мапі
-        map.setView([userLat, userLng], 13);
+                // Показуємо користувача на мапі
+                map.setView([userLat, userLng], 13);
 
-        // Активуємо синій колір кнопки
-        locationButton.classList.add('active');
-      },
-      (error) => {
-        // Обробляємо різні помилки
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            alert("Доступ до геолокації заборонено.");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            alert("Інформація про місцезнаходження недоступна.");
-            break;
-          case error.TIMEOUT:
-            alert("Час очікування геолокації вичерпано.");
-            break;
-          default:
-            alert("Невідома помилка при отриманні місцезнаходження.");
-            break;
-        }
-      }
-    );
-  } else {
-    alert('Ваш браузер не підтримує геолокацію');
-  }
+                // Активуємо синій колір кнопки
+                locationButton.classList.add('active');
+            },
+            (error) => {
+                // Обробляємо різні помилки
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert("Доступ до геолокації заборонено.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert("Інформація про місцезнаходження недоступна.");
+                        break;
+                    case error.TIMEOUT:
+                        alert("Час очікування геолокації вичерпано.");
+                        break;
+                    default:
+                        alert("Невідома помилка при отриманні місцезнаходження.");
+                        break;
+                }
+            }
+        );
+    } else {
+        alert('Ваш браузер не підтримує геолокацію');
+    }
 });
-
 
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
-  position: 'topright'
+    position: 'topright'
 }).addTo(map);
-
 
 // Функція для перевірки, чи є адреса у Львові та збереження в cookies
 async function validateAndSaveAddress(address) {
@@ -293,26 +290,70 @@ async function validateAndSaveAddress(address) {
     }
 }
 
-
 // Функція для додавання адреси в список на панелі
-function addAddressToList(displayName, coordinates) {
-    const addressList = document.getElementById('address-list');
-    const addressItem = document.createElement('div');
-    addressItem.className = 'address-item';
-    addressItem.textContent = displayName;
-    addressItem.dataset.lat = coordinates.lat;
-    addressItem.dataset.lon = coordinates.lon;
+function addAddressToList(address, coordinates) {
+    // Перевіряємо, чи вже є три адреси
+    const addressItems = document.querySelectorAll('.address-item');
+    if (addressItems.length >= 3) {
+        alert("Ви можете зберегти лише 3 адреси.");
+        return;
+    }
 
-    // Додаємо подію для відображення маркера при натисканні на адресу
+    // Створюємо новий елемент для адреси
+    const addressItem = document.createElement('div');
+    addressItem.classList.add('address-item');
+    addressItem.textContent = address;
+
+    // Створюємо кнопку для видалення адреси
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = '×';
+    deleteButton.classList.add('delete-btn');
+    deleteButton.style.marginLeft = '10px';
+    deleteButton.style.backgroundColor = 'red';
+    deleteButton.style.color = 'white';
+    deleteButton.style.border = 'none';
+    deleteButton.style.cursor = 'pointer';
+
+    // Додаємо подію для видалення адреси при натисканні
+    deleteButton.addEventListener('click', () => {
+        addressItem.remove();
+        deleteAddressFromCookie(address); // Видаляємо адресу з cookie
+    });
+
+    // Додаємо кнопку видалення до елементу адреси
+    addressItem.appendChild(deleteButton);
+
+    // Додаємо елемент адреси до списку
+    document.getElementById('address-list').appendChild(addressItem);
+
+    // Додаємо подію для відображення маркера на карті при натисканні на адресу
     addressItem.addEventListener('click', () => {
-        L.marker([coordinates.lat, coordinates.lon], { color: 'red' }).addTo(map)
-            .bindPopup(`Збережена адреса: ${displayName}`)
+        L.marker([coordinates.lat, coordinates.lon]).addTo(map)
+            .bindPopup(`Адреса: ${address}`)
             .openPopup();
         map.setView([coordinates.lat, coordinates.lon], 15);
     });
+}
 
-    // Додаємо нову адресу до списку
-    addressList.appendChild(addressItem);
+// Обробка натискання на кнопку "Додати адресу"
+document.getElementById('add-address-btn').addEventListener('click', () => {
+    const newAddress = document.getElementById('newAddressInput').value;
+    if (newAddress) {
+        validateAndSaveAddress(newAddress);
+    } else {
+        alert("Введіть адресу для збереження.");
+    }
+});
+
+function getCookie(name) {
+    let nameEQ = name + "=";
+    let ca = document.cookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }
 
 // Функція для збереження адреси в cookies (до 3 адрес)
@@ -330,25 +371,47 @@ function saveAddressToCookie(displayName, coordinates) {
     setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
 }
 
-// Відображення адрес з cookies при завантаженні сторінки
+// Функція для видалення адреси з cookies
+function deleteAddressFromCookie(address) {
+    const savedAddresses = getCookie('userAddresses');
+    if (savedAddresses) {
+        const addresses = JSON.parse(savedAddresses);
+        const updatedAddresses = addresses.filter(addr => addr.displayName !== address);
+        setCookie('userAddresses', JSON.stringify(updatedAddresses), 30);
+    }
+}
+
+function setCookie(name, value, days) {
+    let expires = "";
+    if (days) {
+        let date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+}
+
+// Функція завантаження збережених адрес із cookies
 function loadSavedAddresses() {
     const savedAddresses = getCookie('userAddresses');
     if (savedAddresses) {
-        JSON.parse(savedAddresses).forEach(address => {
+        const addresses = JSON.parse(savedAddresses);
+        addresses.forEach(address => {
             addAddressToList(address.displayName, address.coordinates);
         });
     }
 }
 
-// Обробка натискання на кнопку "Додати адресу"
-document.getElementById('add-address-btn').addEventListener('click', () => {
-    const newAddress = document.getElementById('newAddressInput').value;
-    if (newAddress) {
-        validateAndSaveAddress(newAddress);
-    } else {
-        alert("Введіть адресу для збереження.");
+// Завантаження адрес при старті сторінки
+loadSavedAddresses();
+
+const observer = new MutationObserver((mutationsList) => {
+    for (let mutation of mutationsList) {
+        if (mutation.type === 'childList') {
+            console.log('Зміни в DOM: ', mutation);
+        }
     }
 });
 
-// Завантажуємо адреси з cookies при старті
-loadSavedAddresses();
+observer.observe(document.body, { childList: true, subtree: true });
+

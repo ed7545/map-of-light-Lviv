@@ -40,26 +40,36 @@ body {
     background-color: #ccc;
 }
 
-/* Стилі для панелі налаштувань */
+
 .menu-panel {
     position: fixed;
     top: 0;
-    left: -300px; /* Виходить зліва */
+    left: -300px; /* Початково поза екраном */
     width: 300px;
     height: 100%;
-    background-color: #333;
-    color: white;
+    background-color: white;
+    color: black;
     z-index: 1000;
     transition: left 0.3s ease;
     display: flex;
     flex-direction: column;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Тінь для панелі */
+    overflow-y: auto;
+}
+
+.menu-panel.open {
+    left: 0; /* Показує панель */
 }
 
 .menu-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 20px;
     background-color: #444;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .close-btn {
@@ -70,24 +80,95 @@ body {
     cursor: pointer;
 }
 
-.menu-content {
+#address-list {
+    flex-grow: 1;
     padding: 20px;
+    font-size: 16px;
+    color: #333;
 }
 
-.github-link {
+.address-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin: 5px 0;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+
+.address-text {
+    flex-grow: 1;
+    cursor: pointer;
+}
+
+.delete-btn {
+    background-color: #ff4444;
     color: white;
-    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #cc0000;
+}
+
+.address-item:hover {
+    background-color: #e0e0e0;
+}
+
+.add-address-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 12px;
+    margin: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.add-address-btn:hover {
+    background-color: #218838;
+}
+
+.input-container {
+    padding: 20px;
+    gap: 10px;
+}
+
+#newAddressInput {
+    flex-grow: 1;
+    padding: 8px;
     font-size: 18px;
-    background-color: #222;
-    padding: 10px;
-    border-radius: 5px;
-    display: inline-block;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 220px; /* Add this line to set the width of the input field */
 }
 
-.github-link:hover {
-    background-color: #444;
+/* Стилі для кнопки видалення адреси */
+.delete-btn {
+    margin-left: 10px;
+    background-color: red;
+    color: white;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+.delete-btn:hover {
+    background-color: darkred;
 }
 
+
+/* Наче також Стилі для панелі "Про нас" */
 /* Стилі для фону, що затемнюється */
 .backdrop {
     position: fixed;
@@ -111,9 +192,7 @@ body {
 }
 
 
-.backdrop.show {
-    display: block;
-}
+
 
 /* Стиль для панелі "Про нас" */
 .about-us-panel {
@@ -290,3 +369,6 @@ body {
     font-size: 16px;
     padding: 5px;
 }
+
+
+

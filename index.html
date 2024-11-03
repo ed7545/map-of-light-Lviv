@@ -18,26 +18,33 @@
             <i class='bx bx-info-circle'></i>
         </button> 
         <button id="menu-btn" class="menu-btn">
-            <box-icon name='bookmark-heart' ></box-icon>
+            <box-icon name='bookmark-heart'></box-icon>
         </button>
     </div>
 
+<!-- Випливаюча панель -->
+<div id="menu-panel" class="menu-panel">
+    <div class="menu-header">
+        <span>Збережені адреси</span>
+        <button id="close-btn" class="close-btn">&times;</button>
+    </div>
+    <div id="address-list">
+        <!-- Збережені адреси будуть додаватися тут -->
+    </div>
+    <div class="input-container">
+        <input type="text" id="newAddressInput" placeholder="Введіть для збереження">
+        <button id="add-address-btn" class="add-address-btn">Додати адресу</button>
+    </div>
+</div>
+
+
+
+
+
     <button id="locationButton" class="location-btn" title="Показати моє місцезнаходження">
         <box-icon name='current-location' color="black"></box-icon>
-      </button>
+    </button>
       
-      
-    <!-- Випливаюча панель -->
-    <div id="menu-panel" class="menu-panel">
-        <div class="menu-header">
-            <span>Збережені адреси</span>
-            <button id="close-btn" class="close-btn">&times;</button>
-        </div>
-        <div class="menu-content">
-            <a href="https://github.com/ed7545/map-of-light-Lviv" target="_blank" class="github-link">GitHub Project</a>
-        </div>
-    </div>
-    
     <!-- Пошук -->
     <div id="search-container">
         <input type="text" id="addressInput" placeholder="Введіть адресу у Львові">
