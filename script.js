@@ -325,6 +325,14 @@ function addAddressToList(address, coordinates) {
 
     // Додаємо елемент адреси до списку
     document.getElementById('address-list').appendChild(addressItem);
+
+    // Додаємо подію для відображення маркера на карті при натисканні на адресу
+    addressItem.addEventListener('click', () => {
+        L.marker([coordinates.lat, coordinates.lon]).addTo(map)
+            .bindPopup(`Адреса: ${address}`)
+            .openPopup();
+        map.setView([coordinates.lat, coordinates.lon], 15);
+    });
 }
 
 // Обробка натискання на кнопку "Додати адресу"
