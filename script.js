@@ -263,6 +263,7 @@ locationButton.addEventListener('click', () => {
     }
 });
 
+
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
     position: 'topright'
