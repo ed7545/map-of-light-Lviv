@@ -272,28 +272,6 @@ L.control.zoom({
 // Об'єкт для збереження маркерів адрес
 let addressMarkers = {};
 
-// Функція для перевірки, чи є адреса у Львові та збереження в cookies
-async function validateAndSaveAddress(address) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1&accept-language=uk`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        if (data.length > 0) {
-            const { lat, lon, display_name } = data[0];
-            // Виділяємо скорочений варіант адреси (перша частина до коми)
-            const shortAddress = display_name.split(',')[0];
-            addAddressToList(shortAddress, { lat, lon });
-            saveAddressToCookie(shortAddress, { lat, lon });
-        } else {
-            alert("Адресу не знайдено у Львові.");
-        }
-    } catch (error) {
-        console.error("Помилка при перевірці адреси:", error);
-    }
-}
-
 // Функція для додавання адреси в список на панелі
 function addAddressToList(address, coordinates) {
     // Перевіряємо, чи вже є три адреси
@@ -319,13 +297,10 @@ function addAddressToList(address, coordinates) {
     deleteButton.style.cursor = 'pointer';
 
     // Додаємо подію для видалення адреси при натисканні
-    deleteButton.addEventListener('click', () => {
+    deleteButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Запобігаємо спрацюванню кліку на батьківському елементі
+        removeAddress(address);
         addressItem.remove();
-        deleteAddressFromCookie(address); // Видаляємо адресу з cookie
-        if (addressMarkers[address]) {
-            map.removeLayer(addressMarkers[address]);
-            delete addressMarkers[address];
-        }
     });
 
     // Додаємо кнопку видалення до елементу адреси
@@ -334,88 +309,70 @@ function addAddressToList(address, coordinates) {
     // Додаємо елемент адреси до списку
     document.getElementById('address-list').appendChild(addressItem);
 
+    // Додаємо маркер на карту
+    addMarkerToMap(address, coordinates);
+
     // Додаємо подію для відображення маркера на карті при натисканні на адресу
     addressItem.addEventListener('click', () => {
-        if (addressMarkers[address]) {
-            map.removeLayer(addressMarkers[address]);
-        }
-        addressMarkers[address] = L.marker([coordinates.lat, coordinates.lon]).addTo(map)
-            .bindPopup(`Адреса: ${address}`)
-            .openPopup();
-        map.setView([coordinates.lat, coordinates.lon], 15);
+        showMarkerOnMap(address);
     });
 }
 
-// Обробка натискання на кнопку "Додати адресу"
-document.getElementById('add-address-btn').addEventListener('click', () => {
-    const newAddress = document.getElementById('newAddressInput').value;
-    if (newAddress) {
-        validateAndSaveAddress(newAddress);
-    } else {
-        alert("Введіть адресу для збереження.");
+// Функція для додавання маркера на карту
+function addMarkerToMap(address, coordinates) {
+    // Видаляємо старий маркер, якщо він існує
+    if (addressMarkers[address]) {
+        map.removeLayer(addressMarkers[address]);
     }
-});
-
-function getCookie(name) {
-    let nameEQ = name + "=";
-    let ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
+    
+    // Створюємо новий маркер
+    addressMarkers[address] = L.marker([coordinates.lat, coordinates.lon])
+        .addTo(map)
+        .bindPopup(`Адреса: ${address}`);
 }
 
-// Функція для збереження адреси в cookies (до 3 адрес)
-function saveAddressToCookie(displayName, coordinates) {
-    let savedAddresses = getCookie('userAddresses');
-    savedAddresses = savedAddresses ? JSON.parse(savedAddresses) : [];
-
-    // Перевіряємо, чи вже збережено 3 адреси
-    if (savedAddresses.length >= 3) {
-        savedAddresses.shift(); // Видаляємо найстарішу адресу
-    }
-
-    // Додаємо нову адресу
-    savedAddresses.push({ displayName, coordinates });
-    setCookie('userAddresses', JSON.stringify(savedAddresses), 30);
-}
-
-// Функція для видалення адреси з cookies
-function deleteAddressFromCookie(address) {
-    const savedAddresses = getCookie('userAddresses');
-    if (savedAddresses) {
-        const addresses = JSON.parse(savedAddresses);
-        const updatedAddresses = addresses.filter(addr => addr.displayName !== address);
-        setCookie('userAddresses', JSON.stringify(updatedAddresses), 30);
+// Функція для відображення маркера на карті
+function showMarkerOnMap(address) {
+    if (addressMarkers[address]) {
+        const marker = addressMarkers[address];
+        const latLng = marker.getLatLng();
+        map.setView(latLng, 15);
+        marker.openPopup();
     }
 }
 
-function setCookie(name, value, days) {
-    let expires = "";
-    if (days) {
-        let date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
+// Функція для повного видалення адреси (з map, cookies і markers)
+function removeAddress(address) {
+    // Видаляємо маркер з карти
+    if (addressMarkers[address]) {
+        map.removeLayer(addressMarkers[address]);
+        delete addressMarkers[address];
     }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
+    
+    // Видаляємо з cookies
+    deleteAddressFromCookie(address);
 }
 
-// Функція завантаження збережених адрес із cookies
-function loadSavedAddresses() {
-    const savedAddresses = getCookie('userAddresses');
-    if (savedAddresses) {
-        const addresses = JSON.parse(savedAddresses);
-        addresses.forEach(address => {
-            addAddressToList(address.displayName, address.coordinates);
-        });
+// Функція для перевірки та збереження адреси
+async function validateAndSaveAddress(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.length > 0) {
+            const { lat, lon, display_name } = data[0];
+            const shortAddress = display_name.split(',')[0];
+            addAddressToList(shortAddress, { lat, lon });
+            saveAddressToCookie(shortAddress, { lat, lon });
+        } else {
+            alert("Адресу не знайдено у Львові.");
+        }
+    } catch (error) {
+        console.error("Помилка при перевірці адреси:", error);
     }
 }
-
-// Завантаження адрес при старті сторінки
-loadSavedAddresses();
-
 const observer = new MutationObserver((mutationsList) => {
     for (let mutation of mutationsList) {
         if (mutation.type === 'childList') {
@@ -425,4 +382,3 @@ const observer = new MutationObserver((mutationsList) => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
-
