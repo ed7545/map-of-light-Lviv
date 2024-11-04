@@ -268,9 +268,12 @@ L.control.zoom({
     position: 'topright'
 }).addTo(map);
 
+// Об'єкт для збереження маркерів адрес
+let addressMarkers = {};
+
 // Функція для перевірки, чи є адреса у Львові та збереження в cookies
 async function validateAndSaveAddress(address) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1&accept-language=uk`;
 
     try {
         const response = await fetch(url);
@@ -318,6 +321,10 @@ function addAddressToList(address, coordinates) {
     deleteButton.addEventListener('click', () => {
         addressItem.remove();
         deleteAddressFromCookie(address); // Видаляємо адресу з cookie
+        if (addressMarkers[address]) {
+            map.removeLayer(addressMarkers[address]);
+            delete addressMarkers[address];
+        }
     });
 
     // Додаємо кнопку видалення до елементу адреси
@@ -328,7 +335,10 @@ function addAddressToList(address, coordinates) {
 
     // Додаємо подію для відображення маркера на карті при натисканні на адресу
     addressItem.addEventListener('click', () => {
-        L.marker([coordinates.lat, coordinates.lon]).addTo(map)
+        if (addressMarkers[address]) {
+            map.removeLayer(addressMarkers[address]);
+        }
+        addressMarkers[address] = L.marker([coordinates.lat, coordinates.lon]).addTo(map)
             .bindPopup(`Адреса: ${address}`)
             .openPopup();
         map.setView([coordinates.lat, coordinates.lon], 15);
@@ -414,4 +424,3 @@ const observer = new MutationObserver((mutationsList) => {
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
-
