@@ -381,4 +381,7 @@ const observer = new MutationObserver((mutationsList) => {
     }
 });
 
+// Завантаження адрес при старті сторінки
+loadSavedAddresses();
+
 observer.observe(document.body, { childList: true, subtree: true });
