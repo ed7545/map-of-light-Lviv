@@ -53,7 +53,7 @@ function fetchLvivTimeAndUpdateColors() {
             timeContainer.textContent = currentTime; // Відображення часу на екрані
 
             // Запит на кольори через API та оновлення полігонів
-            fetch('https://ed007.pythonanywhere.com/api/colors')
+            fetch('https://sizer.pythonanywhere.com/api/colors')
                 .then(response => response.json())
                 .then(responseData => {
                     if (responseData.status === 'success') {
@@ -146,7 +146,7 @@ function fetchLvivTimeAndUpdateColors() {
             document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
 
             // Запит кольорів через API
-            fetch('https://ed007.pythonanywhere.com/api/colors')
+            fetch('https://sizer.pythonanywhere.com/api/colors')
                 .then(response => response.json())
                 .then(responseData => {
                     if (responseData.status === 'success') {
@@ -354,6 +354,8 @@ document.getElementById('add-address-btn').addEventListener('click', () => {
         alert("Введіть адресу для збереження.");
     }
 });
+
+
 
 function getCookie(name) {
     let nameEQ = name + "=";
