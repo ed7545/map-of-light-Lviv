@@ -43,6 +43,7 @@ function updatePolygonsColors(colorData, currentHour) {
 // API-ключ тут
 const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 
+
 // Завантажуємо дані полігонів з файлу data.json і додаємо на карту
 fetch('data.json')
     .then(response => response.json())
@@ -70,7 +71,7 @@ fetch('data.json')
             }
         });
         // Запускаємо оновлення часу та кольорів кожні 15 секунд
-        setInterval(fetchLvivTimeAndUpdateColors, 300000);
+        setInterval(fetchLvivTimeAndUpdateColors, 1800000);
         fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
     })
     .catch(error => {
@@ -78,21 +79,20 @@ fetch('data.json')
     });
 
 // Функція для відображення попередження на наступну годину
-function highlightNextHourPolygons(colorData, currentHour, nextHour) {
+function highlightNextHourPolygons(colorData, nextHour) {
     Object.keys(polygons).forEach(polygonId => {
         const polygon = polygons[polygonId];
+        const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
         const currentHourColor = getCurrentHourColor(colorData, polygonId, currentHour);
-        const nextHourColor = getCurrentHourColor(colorData, polygonId, nextHour);
 
-        if (currentHourColor === 'red') {
-            // Якщо поточна година червона, встановлюємо червоний колір
-            polygon.forEach(part => part.setStyle({ fillColor: 'red' }));
-        } else if (currentHourColor === 'green' && nextHourColor === 'red') {
-            // Якщо поточна година зелена, а наступна червона, встановлюємо жовтий колір
-            polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
-        } else {
-            // В іншому випадку встановлюємо зелений колір
-            polygon.forEach(part => part.setStyle({ fillColor: 'green' }));
+        if (nextHourColor === 'red' && currentHourColor !== 'red') {
+            // Якщо полігон є колекцією (наприклад, масивом), застосовуємо стиль до кожного елементу
+            if (Array.isArray(polygon)) {
+                polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
+            } else {
+                // Якщо це окремий об'єкт, застосовуємо стиль безпосередньо
+                polygon.setStyle({ fillColor: 'yellow' });
+            }
         }
     });
 }
@@ -116,7 +116,7 @@ function updateClockDisplay() {
     document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
 }
 
-// Функція для отримання реального часу в Львові та оновлення кольорів полігонів
+// Оновлюємо функцію fetchLvivTimeAndUpdateColors для збереження початкового часу
 function fetchLvivTimeAndUpdateColors() {
     fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
         .then(response => response.json())
@@ -133,7 +133,7 @@ function fetchLvivTimeAndUpdateColors() {
                     if (responseData.status === 'success') {
                         const colorData = responseData.data;
                         updatePolygonsColors(colorData, currentHour);
-                        highlightNextHourPolygons(colorData, currentHour, (currentHour + 1) % 24);
+                        highlightNextHourPolygons(colorData, currentHour);
                     } else {
                         console.error('Помилка в даних API:', responseData);
                     }
@@ -214,7 +214,7 @@ locationButton.addEventListener('click', () => {
                 // Додаємо новий маркер на мапу
                 locationMarker = L.marker([userLat, userLng]).addTo(map)
                     .bindPopup('Ви тут').openPopup();
-і
+
                 // Показуємо користувача на мапі
                 map.setView([userLat, userLng], 13);
 
