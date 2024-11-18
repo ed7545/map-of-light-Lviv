@@ -43,31 +43,6 @@ function updatePolygonsColors(colorData, currentHour) {
 // API-ключ тут
 const ipgeolocationApiKey = '053adea0cbec4e7da8f9f7abe9040068';
 
-// Функція для отримання реального часу в Львові та оновлення кольорів полігонів
-function fetchLvivTimeAndUpdateColors() {
-    fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
-        .then(response => response.json())
-        .then(data => {
-            const currentHour = new Date(data.date_time_txt).getHours();
-            const currentTime = data.date_time_txt.slice(11, 16); // Формат HH:MM
-            timeContainer.textContent = currentTime; // Відображення часу на екрані
-
-            // Запит на кольори через API та оновлення полігонів
-            fetch('https://ed007.pythonanywhere.com/api/colors')
-                .then(response => response.json())
-                .then(responseData => {
-                    if (responseData.status === 'success') {
-                        const colorData = responseData.data;
-                        updatePolygonsColors(colorData, currentHour);
-                    } else {
-                        console.error('Помилка в даних API:', responseData);
-                    }
-                })
-                .catch(error => console.error('Помилка завантаження кольорів через API:', error));
-        })
-        .catch(error => console.error('Помилка отримання часу:', error));
-}
-
 // Завантажуємо дані полігонів з файлу data.json і додаємо на карту
 fetch('data.json')
     .then(response => response.json())
@@ -78,7 +53,11 @@ fetch('data.json')
                 const featureId = feature.properties.id;
                 const initialColor = 'transparent';
                 const polygon = L.geoJSON(feature, {
-                    style: styleFunction(feature, initialColor)
+                    style: styleFunction(feature, initialColor),
+                    onEachFeature: function (feature, layer) {
+                        // Додаємо віконце з ID полігону при натисканні
+                        layer.bindPopup(`Група: ${feature.properties.id}`);
+                    }
                 }).addTo(map);
 
                 // Якщо масиву для цього ID ще немає, створимо його
@@ -91,7 +70,7 @@ fetch('data.json')
             }
         });
         // Запускаємо оновлення часу та кольорів кожні 15 секунд
-        setInterval(fetchLvivTimeAndUpdateColors, 1800000);
+        setInterval(fetchLvivTimeAndUpdateColors, 300000);
         fetchLvivTimeAndUpdateColors(); // Початковий виклик для завантаження
     })
     .catch(error => {
@@ -99,19 +78,21 @@ fetch('data.json')
     });
 
 // Функція для відображення попередження на наступну годину
-function highlightNextHourPolygons(colorData, nextHour) {
+function highlightNextHourPolygons(colorData, currentHour, nextHour) {
     Object.keys(polygons).forEach(polygonId => {
         const polygon = polygons[polygonId];
-        const nextHourColor = colorData[polygonId] ? colorData[polygonId][nextHour] : 'transparent';
+        const currentHourColor = getCurrentHourColor(colorData, polygonId, currentHour);
+        const nextHourColor = getCurrentHourColor(colorData, polygonId, nextHour);
 
-        if (nextHourColor === 'red') {
-            // Якщо полігон є колекцією (наприклад, масивом), застосовуємо стиль до кожного елементу
-            if (Array.isArray(polygon)) {
-                polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
-            } else {
-                // Якщо це окремий об'єкт, застосовуємо стиль безпосередньо
-                polygon.setStyle({ fillColor: 'yellow' });
-            }
+        if (currentHourColor === 'red') {
+            // Якщо поточна година червона, встановлюємо червоний колір
+            polygon.forEach(part => part.setStyle({ fillColor: 'red' }));
+        } else if (currentHourColor === 'green' && nextHourColor === 'red') {
+            // Якщо поточна година зелена, а наступна червона, встановлюємо жовтий колір
+            polygon.forEach(part => part.setStyle({ fillColor: 'yellow' }));
+        } else {
+            // В іншому випадку встановлюємо зелений колір
+            polygon.forEach(part => part.setStyle({ fillColor: 'green' }));
         }
     });
 }
@@ -135,7 +116,7 @@ function updateClockDisplay() {
     document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
 }
 
-// Оновлюємо функцію fetchLvivTimeAndUpdateColors для збереження початкового часу
+// Функція для отримання реального часу в Львові та оновлення кольорів полігонів
 function fetchLvivTimeAndUpdateColors() {
     fetch(`https://api.ipgeolocation.io/timezone?apiKey=${ipgeolocationApiKey}&tz=Europe/Kiev`)
         .then(response => response.json())
@@ -146,13 +127,13 @@ function fetchLvivTimeAndUpdateColors() {
             document.getElementById("current-time").textContent = formatTime(currentHour, currentMinute);
 
             // Запит кольорів через API
-            fetch('https://ed007.pythonanywhere.com/api/colors')
+            fetch('https://sizer.pythonanywhere.com/api/colors')
                 .then(response => response.json())
                 .then(responseData => {
                     if (responseData.status === 'success') {
                         const colorData = responseData.data;
                         updatePolygonsColors(colorData, currentHour);
-                        highlightNextHourPolygons(colorData, currentHour);
+                        highlightNextHourPolygons(colorData, currentHour, (currentHour + 1) % 24);
                     } else {
                         console.error('Помилка в даних API:', responseData);
                     }
@@ -233,7 +214,7 @@ locationButton.addEventListener('click', () => {
                 // Додаємо новий маркер на мапу
                 locationMarker = L.marker([userLat, userLng]).addTo(map)
                     .bindPopup('Ви тут').openPopup();
-
+і
                 // Показуємо користувача на мапі
                 map.setView([userLat, userLng], 13);
 
@@ -263,7 +244,6 @@ locationButton.addEventListener('click', () => {
     }
 });
 
-
 // Додаємо контроль масштабування і переміщуємо його в правий верхній кут
 L.control.zoom({
     position: 'topright'
@@ -274,7 +254,7 @@ let addressMarkers = {};
 
 // Функція для перевірки, чи є адреса у Львові та збереження в cookies
 async function validateAndSaveAddress(address) {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1`;
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}, Львів&limit=1&accept-language=uk`;
 
     try {
         const response = await fetch(url);
@@ -319,17 +299,13 @@ function addAddressToList(address, coordinates) {
     deleteButton.style.cursor = 'pointer';
 
     // Додаємо подію для видалення адреси при натисканні
-    deleteButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Запобігаємо спрацюванню кліка на адресі
-        
-        // Видаляємо маркер з карти перед видаленням адреси
+    deleteButton.addEventListener('click', () => {
+        addressItem.remove();
+        deleteAddressFromCookie(address); // Видаляємо адресу з cookie
         if (addressMarkers[address]) {
             map.removeLayer(addressMarkers[address]);
-            delete addressMarkers[address]; // Видаляємо маркер з об'єкту
+            delete addressMarkers[address];
         }
-        
-        addressItem.remove();
-        deleteAddressFromCookie(address);
     });
 
     // Додаємо кнопку видалення до елементу адреси
@@ -359,6 +335,8 @@ document.getElementById('add-address-btn').addEventListener('click', () => {
         alert("Введіть адресу для збереження.");
     }
 });
+
+
 
 function getCookie(name) {
     let nameEQ = name + "=";

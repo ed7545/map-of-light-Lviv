@@ -59,10 +59,7 @@ menuBtn.addEventListener('click', () => {
     // Інші дії для меню...
 });
 
-settingsButton.addEventListener('click', () => {
-    closeAboutUs();  // Закриваємо "Про нас"
-    // Інші дії для налаштувань...
-});
+
 
 
 if (settingsButton) {
